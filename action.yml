@@ -3,11 +3,8 @@ description: TODO
 author: Pandapip1
 
 inputs:
-  GITHUB_TOKEN:
+  TOKEN:
     description: GitHub token with repo permissions
-    required: true
-  CONFIG_FILE:
-    description: Path to the config file
     required: true
 
 runs:
