@@ -13130,7 +13130,7 @@ function getLabelsFromConfig(newFm, oldFm, config) {
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         // Initialize GitHub API
-        const GITHUB_TOKEN = core_1.default.getInput('GITHUB_TOKEN');
+        const GITHUB_TOKEN = core_1.default.getInput('TOKEN');
         const octokit = github_1.default.getOctokit(GITHUB_TOKEN);
         // Deconstruct the payload
         const { context } = github_1.default;
