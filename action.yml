@@ -1,0 +1,15 @@
+name: Jekyll Label Action
+description: TODO
+author: Pandapip1
+
+inputs:
+  GITHUB_TOKEN:
+    description: GitHub token with repo permissions
+    required: true
+  CONFIG_FILE:
+    description: Path to the config file
+    required: true
+
+runs:
+  using: node16
+  main: dist/index.js
