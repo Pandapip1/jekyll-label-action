@@ -96,7 +96,7 @@ async function run() {
             core.info(`Label ${label} should not be applied`);
         }
         try {
-            octokit.rest.issues.removeLabel({
+            await octokit.rest.issues.removeLabel({
                 owner: repository?.owner.login as string,
                 repo: repository?.name as string,
                 issue_number: pull_request?.number as number,
