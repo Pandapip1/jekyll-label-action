@@ -29,10 +29,10 @@ async function run() {
     // Deconstruct the payload
     const { context } = github;
     const { payload } = context;
-    const { repo, pull_request } = payload;
+    const { repository, pull_request } = payload;
 
     // Parse config file
-    const response = await octokit.request(`GET /repos/${repo.owner.login}/${repo.name}/contents/.jekyll-labels.yml`);
+    const response = await octokit.request(`GET /repos/${repository?.owner.login}/${repository?.name}/contents/.jekyll-labels.yml`);
     if (response.status !== 200) {
         core.setFailed('Could not find .jekyll-labels.yml');
         process.exit(1);
@@ -44,8 +44,8 @@ async function run() {
 
     // Iterate through changed files
     const fetched = await octokit.paginate(octokit.rest.pulls.listFiles, {
-        owner: pull_request?.base?.repo?.owner?.login,
-        repo: pull_request?.base?.repo?.name,
+        owner: pull_request?.base.repo.owner.login,
+        repo: pull_request?.base.repo.name,
         pull_number: pull_request?.number as number,
     });
 
@@ -63,13 +63,13 @@ async function run() {
         let oldFm = {} as any;
 
         if (file.status === "removed" || file.status === "modified") {
-            const response = await octokit.request(`GET /repos/${repo.owner.login}/${repo.name}/contents/${file.filename}`);
+            const response = await octokit.request(`GET /repos/${repository?.owner.login}/${repository?.name}/contents/${file.filename}`);
             const content = Buffer.from(response.data.content, "base64").toString("utf8");
             oldFm = fm(content).attributes as any;
         }
 
         if (file.status === "added" || file.status === "modified") {
-            const response = await octokit.request(`GET /repos/${pull_request?.base?.repo?.owner?.login}/${pull_request?.base?.repo?.name}/contents/${file.filename}`);
+            const response = await octokit.request(`GET /repos/${pull_request?.base.repo.owner.login}/${pull_request?.base.repo.name}/contents/${file.filename}`);
             const content = Buffer.from(response.data.content, "base64").toString("utf8");
             newFm = fm(content).attributes as any;
         }
@@ -83,8 +83,8 @@ async function run() {
 
     // Add labels
     octokit.rest.issues.addLabels({
-        owner: repo.owner,
-        repo: repo.repo,
+        owner: repository?.owner.login as string,
+        repo: repository?.name as string,
         issue_number: pull_request?.number as number,
         labels: [...labels]
     });
@@ -95,8 +95,8 @@ async function run() {
             continue;
         }
         octokit.rest.issues.removeLabel({
-            owner: repo.owner,
-            repo: repo.repo,
+            owner: repository?.owner.login as string,
+            repo: repository?.name as string,
             issue_number: pull_request?.number as number,
             name: label
         });
