@@ -21485,12 +21485,17 @@ async function run() {
         if (labels.has(label)) {
             continue;
         }
-        octokit.rest.issues.removeLabel({
-            owner: repository === null || repository === void 0 ? void 0 : repository.owner.login,
-            repo: repository === null || repository === void 0 ? void 0 : repository.name,
-            issue_number: pull_request === null || pull_request === void 0 ? void 0 : pull_request.number,
-            name: label
-        });
+        try {
+            octokit.rest.issues.removeLabel({
+                owner: repository === null || repository === void 0 ? void 0 : repository.owner.login,
+                repo: repository === null || repository === void 0 ? void 0 : repository.name,
+                issue_number: pull_request === null || pull_request === void 0 ? void 0 : pull_request.number,
+                name: label
+            });
+        }
+        catch (_a) {
+            // The label was not present
+        }
     }
 }
 run();
