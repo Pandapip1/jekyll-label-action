@@ -81,13 +81,22 @@ async function run() {
         }
     }));
 
-    // Add labels
-    const issueLabels = (await octokit.rest.issues.addLabels({
-        owner: repository?.owner.login as string,
-        repo: repository?.name as string,
-        issue_number: pull_request?.number as number,
-        labels: [...labels]
-    })).data.map((label) => label.name);
+    // Add new labels and remove labels that are no longer relevant
+    let issueLabels: string[] = [];
+    if (labels.size > 0) {
+        issueLabels = (await octokit.rest.issues.addLabels({
+            owner: repository?.owner.login as string,
+            repo: repository?.name as string,
+            issue_number: pull_request?.number as number,
+            labels: [...labels]
+        })).data.map((label) => label.name);
+    } else {
+        issueLabels = (await octokit.rest.issues.listLabelsOnIssue({
+            owner: repository?.owner.login as string,
+            repo: repository?.name as string,
+            issue_number: pull_request?.number as number
+        })).data.map((label) => label.name);
+    }
 
     await Promise.all(issueLabels.map(async (label) => {
         core.info(`Found label: ${label}`);
