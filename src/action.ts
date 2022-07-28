@@ -23,7 +23,7 @@ async function getLabelsFromConfig(newFm: any, oldFm: any, config: { [key: strin
 
 async function run() {
     // Initialize GitHub API
-    const GITHUB_TOKEN = core.getInput('TOKEN');
+    const GITHUB_TOKEN = core.getInput('token');
     const octokit = github.getOctokit(GITHUB_TOKEN);
 
     // Deconstruct the payload

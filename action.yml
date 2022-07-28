@@ -3,7 +3,7 @@ description: TODO
 author: Pandapip1
 
 inputs:
-  TOKEN:
+  token:
     description: GitHub token with repo permissions
     required: true
 
