@@ -63,7 +63,7 @@ async function run() {
         let oldFm = {} as any;
 
         if (file.status === "removed" || file.status === "modified") {
-            const response = await octokit.request(`GET /repos/${repository?.owner.login}/${repository?.name}/contents/${file.filename}`);
+            const response = await octokit.request(`GET /repos/${repository?.owner.login}/${repository?.name}/contents/${file.filename}?ref=${pull_request?.head.sha}`);
             const content = Buffer.from(response.data.content, "base64").toString("utf8");
             oldFm = fm(content).attributes as any;
         }
