@@ -21480,22 +21480,25 @@ async function run() {
         issue_number: pull_request === null || pull_request === void 0 ? void 0 : pull_request.number,
         labels: [...labels]
     })).data.map((label) => label.name);
-    [...labels].forEach((label) => _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Added label ${label}`));
     await Promise.all(issueLabels.map(async (label) => {
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Found label: ${label}`);
         if (!labels.has(label)) {
             _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Label ${label} should not be applied`);
+            try {
+                await octokit.rest.issues.removeLabel({
+                    owner: repository === null || repository === void 0 ? void 0 : repository.owner.login,
+                    repo: repository === null || repository === void 0 ? void 0 : repository.name,
+                    issue_number: pull_request === null || pull_request === void 0 ? void 0 : pull_request.number,
+                    name: label
+                });
+                _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Removed label ${label}`);
+            }
+            catch (_a) {
+                _actions_core__WEBPACK_IMPORTED_MODULE_0__.warning(`Could not remove label ${label}`);
+            }
         }
-        try {
-            await octokit.rest.issues.removeLabel({
-                owner: repository === null || repository === void 0 ? void 0 : repository.owner.login,
-                repo: repository === null || repository === void 0 ? void 0 : repository.name,
-                issue_number: pull_request === null || pull_request === void 0 ? void 0 : pull_request.number,
-                name: label
-            });
-        }
-        catch (_a) {
-            _actions_core__WEBPACK_IMPORTED_MODULE_0__.warning(`Could not remove label ${label}`);
+        else {
+            _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Added label ${label}`);
         }
     }));
 }
