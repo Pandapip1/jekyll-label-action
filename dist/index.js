@@ -21473,13 +21473,23 @@ async function run() {
             labels.add(label);
         }
     }));
-    // Add labels
-    const issueLabels = (await octokit.rest.issues.addLabels({
-        owner: repository === null || repository === void 0 ? void 0 : repository.owner.login,
-        repo: repository === null || repository === void 0 ? void 0 : repository.name,
-        issue_number: pull_request === null || pull_request === void 0 ? void 0 : pull_request.number,
-        labels: [...labels]
-    })).data.map((label) => label.name);
+    // Add new labels and remove labels that are no longer relevant
+    let issueLabels = [];
+    if (labels.size > 0) {
+        issueLabels = (await octokit.rest.issues.addLabels({
+            owner: repository === null || repository === void 0 ? void 0 : repository.owner.login,
+            repo: repository === null || repository === void 0 ? void 0 : repository.name,
+            issue_number: pull_request === null || pull_request === void 0 ? void 0 : pull_request.number,
+            labels: [...labels]
+        })).data.map((label) => label.name);
+    }
+    else {
+        issueLabels = (await octokit.rest.issues.listLabelsOnIssue({
+            owner: repository === null || repository === void 0 ? void 0 : repository.owner.login,
+            repo: repository === null || repository === void 0 ? void 0 : repository.name,
+            issue_number: pull_request === null || pull_request === void 0 ? void 0 : pull_request.number
+        })).data.map((label) => label.name);
+    }
     await Promise.all(issueLabels.map(async (label) => {
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Found label: ${label}`);
         if (!labels.has(label)) {
