@@ -94,12 +94,16 @@ async function run() {
         if (labels.has(label)) {
             continue;
         }
-        octokit.rest.issues.removeLabel({
-            owner: repository?.owner.login as string,
-            repo: repository?.name as string,
-            issue_number: pull_request?.number as number,
-            name: label
-        });
+        try {
+            octokit.rest.issues.removeLabel({
+                owner: repository?.owner.login as string,
+                repo: repository?.name as string,
+                issue_number: pull_request?.number as number,
+                name: label
+            });
+        } catch {
+            // The label was not present
+        }
     }
 }
 
