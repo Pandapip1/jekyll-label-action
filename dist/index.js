@@ -21474,28 +21474,23 @@ async function run() {
         }
     }));
     // Add labels
-    octokit.rest.issues.addLabels({
+    const issueLabels = (await octokit.rest.issues.addLabels({
         owner: repository === null || repository === void 0 ? void 0 : repository.owner.login,
         repo: repository === null || repository === void 0 ? void 0 : repository.name,
         issue_number: pull_request === null || pull_request === void 0 ? void 0 : pull_request.number,
         labels: [...labels]
-    });
+    })).data.map((label) => label.name);
     // Remove outdated labels
     for (let label of Object.keys(config)) {
-        if (labels.has(label)) {
+        if (labels.has(label) || issueLabels.indexOf(label) < 0) {
             continue;
         }
-        try {
-            octokit.rest.issues.removeLabel({
-                owner: repository === null || repository === void 0 ? void 0 : repository.owner.login,
-                repo: repository === null || repository === void 0 ? void 0 : repository.name,
-                issue_number: pull_request === null || pull_request === void 0 ? void 0 : pull_request.number,
-                name: label
-            });
-        }
-        catch (_a) {
-            // The label was not present
-        }
+        octokit.rest.issues.removeLabel({
+            owner: repository === null || repository === void 0 ? void 0 : repository.owner.login,
+            repo: repository === null || repository === void 0 ? void 0 : repository.name,
+            issue_number: pull_request === null || pull_request === void 0 ? void 0 : pull_request.number,
+            name: label
+        }).catch(() => _actions_core__WEBPACK_IMPORTED_MODULE_0__.warning(`Could not remove label ${label}`));
     }
 }
 run();
