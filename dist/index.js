@@ -21458,7 +21458,7 @@ async function run() {
         let newFm = {};
         let oldFm = {};
         if (file.status === "removed" || file.status === "modified") {
-            const response = await octokit.request(`GET /repos/${repository === null || repository === void 0 ? void 0 : repository.owner.login}/${repository === null || repository === void 0 ? void 0 : repository.name}/contents/${file.filename}`);
+            const response = await octokit.request(`GET /repos/${repository === null || repository === void 0 ? void 0 : repository.owner.login}/${repository === null || repository === void 0 ? void 0 : repository.name}/contents/${file.filename}?ref=${pull_request === null || pull_request === void 0 ? void 0 : pull_request.head.sha}`);
             const content = Buffer.from(response.data.content, "base64").toString("utf8");
             oldFm = front_matter__WEBPACK_IMPORTED_MODULE_2__(content).attributes;
         }
