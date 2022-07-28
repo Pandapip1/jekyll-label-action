@@ -23232,11 +23232,10 @@ async function run() {
             onSecondaryRateLimit: (_retryAfter, options) => octokit.log.warn(`Abuse detected for request ${(options === null || options === void 0 ? void 0 : options.method) || unknown} ${(options === null || options === void 0 ? void 0 : options.url) || unknown}`),
         } }));
     // Deconstruct the payload
-    const { context } = _actions_github__WEBPACK_IMPORTED_MODULE_1__;
-    const { payload } = context;
+    const payload = _actions_github__WEBPACK_IMPORTED_MODULE_1__.context.payload;
     const { repository, pull_request } = payload;
     // Parse config file
-    const response = await octokit.request(`GET /repos/${repository === null || repository === void 0 ? void 0 : repository.owner.login}/${repository === null || repository === void 0 ? void 0 : repository.name}/contents/.jekyll-labels.yml`);
+    const response = await octokit.request(`GET /repos/${repository.owner.login}/${repository.name}/contents/.jekyll-labels.yml`);
     if (response.status !== 200) {
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed('Could not find .jekyll-labels.yml');
         process.exit(1);
@@ -23246,9 +23245,9 @@ async function run() {
     const labels = new Set();
     // Iterate through changed files
     const fetched = await octokit.paginate(octokit.rest.pulls.listFiles, {
-        owner: pull_request === null || pull_request === void 0 ? void 0 : pull_request.base.repo.owner.login,
-        repo: pull_request === null || pull_request === void 0 ? void 0 : pull_request.base.repo.name,
-        pull_number: pull_request === null || pull_request === void 0 ? void 0 : pull_request.number,
+        owner: pull_request.base.repo.owner.login,
+        repo: pull_request.base.repo.name,
+        pull_number: pull_request.number,
     });
     // Be awed by the speed of doing everything in parallel
     await Promise.all(fetched.map(async function (file) {
@@ -23258,15 +23257,15 @@ async function run() {
         if (file.status !== "modified" && file.status !== "added" && file.status !== "removed") {
             return; // File unmodified
         }
-        let newFm = {};
-        let oldFm = {};
+        let newFm = undefined;
+        let oldFm = undefined;
         if (file.status === "removed" || file.status === "modified") {
-            const response = await octokit.request(`GET /repos/${repository === null || repository === void 0 ? void 0 : repository.owner.login}/${repository === null || repository === void 0 ? void 0 : repository.name}/contents/${file.filename}`);
+            const response = await octokit.request(`GET /repos/${repository.owner.login}/${repository.name}/contents/${file.filename}`);
             const content = Buffer.from(response.data.content, "base64").toString("utf8");
             oldFm = front_matter__WEBPACK_IMPORTED_MODULE_3__(content).attributes;
         }
         if (file.status === "added" || file.status === "modified") {
-            const response = await octokit.request(`GET /repos/${pull_request === null || pull_request === void 0 ? void 0 : pull_request.base.repo.owner.login}/${pull_request === null || pull_request === void 0 ? void 0 : pull_request.base.repo.name}/contents/${file.filename}?ref=${pull_request === null || pull_request === void 0 ? void 0 : pull_request.head.sha}`);
+            const response = await octokit.request(`GET /repos/${pull_request.base.repo.owner.login}/${pull_request.base.repo.name}/contents/${file.filename}?ref=${pull_request.head.sha}`);
             const content = Buffer.from(response.data.content, "base64").toString("utf8");
             newFm = front_matter__WEBPACK_IMPORTED_MODULE_3__(content).attributes;
         }
@@ -23280,17 +23279,17 @@ async function run() {
     let issueLabels = [];
     if (labels.size > 0) {
         issueLabels = (await octokit.rest.issues.addLabels({
-            owner: repository === null || repository === void 0 ? void 0 : repository.owner.login,
-            repo: repository === null || repository === void 0 ? void 0 : repository.name,
-            issue_number: pull_request === null || pull_request === void 0 ? void 0 : pull_request.number,
+            owner: repository.owner.login,
+            repo: repository.name,
+            issue_number: pull_request.number,
             labels: [...labels]
         })).data.map((label) => label.name);
     }
     else {
         issueLabels = (await octokit.rest.issues.listLabelsOnIssue({
-            owner: repository === null || repository === void 0 ? void 0 : repository.owner.login,
-            repo: repository === null || repository === void 0 ? void 0 : repository.name,
-            issue_number: pull_request === null || pull_request === void 0 ? void 0 : pull_request.number
+            owner: repository.owner.login,
+            repo: repository.name,
+            issue_number: pull_request.number
         })).data.map((label) => label.name);
     }
     await Promise.all(issueLabels.map(async (label) => {
@@ -23299,9 +23298,9 @@ async function run() {
             _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Label ${label} should not be applied`);
             try {
                 await octokit.rest.issues.removeLabel({
-                    owner: repository === null || repository === void 0 ? void 0 : repository.owner.login,
-                    repo: repository === null || repository === void 0 ? void 0 : repository.name,
-                    issue_number: pull_request === null || pull_request === void 0 ? void 0 : pull_request.number,
+                    owner: repository.owner.login,
+                    repo: repository.name,
+                    issue_number: pull_request.number,
                     name: label
                 });
                 _actions_core__WEBPACK_IMPORTED_MODULE_0__.info(`Removed label ${label}`);
