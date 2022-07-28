@@ -1,7 +1,12 @@
 import core from '@actions/core';
 import github from '@actions/github';
+import { GitHub, getOctokitOptions } from "@actions/github/lib/utils.js";
+import { throttling } from "@octokit/plugin-throttling";
 import fm from "front-matter";
 import { parse } from 'yaml';
+
+const unknown = "<unknown>";
+const ThrottledOctokit = GitHub.plugin(throttling);
 
 function isConditionMet(templateString : string, templateVars : any) : boolean {
     return new Function(`return ${templateString};`).call(templateVars); // Magic
@@ -24,7 +29,16 @@ async function getLabelsFromConfig(newFm: any, oldFm: any, config: { [key: strin
 async function run() {
     // Initialize GitHub API
     const GITHUB_TOKEN = core.getInput('token');
-    const octokit = github.getOctokit(GITHUB_TOKEN);
+    const octokit = new ThrottledOctokit(getOctokitOptions(GITHUB_TOKEN, { throttle: {
+        onRateLimit: (retryAfter: number, options: any) => {
+            octokit.log.warn(`Request quota exhausted for request ${options?.method || unknown} ${options?.url || unknown}`);
+            if (options?.request?.retryCount <= 2) {
+                console.log(`Retrying after ${retryAfter} seconds!`);
+                return true;
+            }
+        },
+        onSecondaryRateLimit: (_retryAfter: number, options: any) => octokit.log.warn(`Abuse detected for request ${options?.method || unknown} ${options?.url || unknown}`),
+    } }));
 
     // Deconstruct the payload
     const { context } = github;
