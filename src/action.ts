@@ -88,19 +88,24 @@ async function run() {
         issue_number: pull_request?.number as number,
         labels: [...labels]
     })).data.map((label) => label.name);
+    [...labels].forEach((label) => core.info(`Added label ${label}`));
 
-    // Remove outdated labels
-    for (let label of Object.keys(config)) {
-        if (labels.has(label) || issueLabels.indexOf(label) < 0) {
-            continue;
+    await Promise.all(issueLabels.map(async (label) => {
+        core.info(`Found label: ${label}`);
+        if (!labels.has(label)) {
+            core.info(`Label ${label} should not be applied`);
         }
-        octokit.rest.issues.removeLabel({
-            owner: repository?.owner.login as string,
-            repo: repository?.name as string,
-            issue_number: pull_request?.number as number,
-            name: label
-        }).catch(() => core.warning(`Could not remove label ${label}`));
-    }
+        try {
+            octokit.rest.issues.removeLabel({
+                owner: repository?.owner.login as string,
+                repo: repository?.name as string,
+                issue_number: pull_request?.number as number,
+                name: label
+            });
+        } catch {
+            core.warning(`Could not remove label ${label}`)
+        }
+    }));
 }
 
 run();
