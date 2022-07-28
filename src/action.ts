@@ -73,8 +73,8 @@ async function run() {
             return; // File unmodified
         }
         
-        let newFm = {} as any;
-        let oldFm = {} as any;
+        let newFm = undefined as any;
+        let oldFm = undefined as any;
 
         if (file.status === "removed" || file.status === "modified") {
             const response = await octokit.request(`GET /repos/${repository.owner.login}/${repository.name}/contents/${file.filename}`);
