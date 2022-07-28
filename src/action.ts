@@ -4,6 +4,7 @@ import { GitHub, getOctokitOptions } from "@actions/github/lib/utils.js";
 import { throttling } from "@octokit/plugin-throttling";
 import fm from "front-matter";
 import { parse } from 'yaml';
+import { PullRequestEvent } from "@octokit/webhooks-types";
 
 const unknown = "<unknown>";
 const ThrottledOctokit = GitHub.plugin(throttling);
@@ -41,12 +42,11 @@ async function run() {
     } }));
 
     // Deconstruct the payload
-    const { context } = github;
-    const { payload } = context;
+    const payload = github.context.payload as PullRequestEvent;
     const { repository, pull_request } = payload;
 
     // Parse config file
-    const response = await octokit.request(`GET /repos/${repository?.owner.login}/${repository?.name}/contents/.jekyll-labels.yml`);
+    const response = await octokit.request(`GET /repos/${repository.owner.login}/${repository.name}/contents/.jekyll-labels.yml`);
     if (response.status !== 200) {
         core.setFailed('Could not find .jekyll-labels.yml');
         process.exit(1);
@@ -58,9 +58,9 @@ async function run() {
 
     // Iterate through changed files
     const fetched = await octokit.paginate(octokit.rest.pulls.listFiles, {
-        owner: pull_request?.base.repo.owner.login,
-        repo: pull_request?.base.repo.name,
-        pull_number: pull_request?.number as number,
+        owner: pull_request.base.repo.owner.login,
+        repo: pull_request.base.repo.name,
+        pull_number: pull_request.number,
     });
 
     // Be awed by the speed of doing everything in parallel
@@ -77,13 +77,13 @@ async function run() {
         let oldFm = {} as any;
 
         if (file.status === "removed" || file.status === "modified") {
-            const response = await octokit.request(`GET /repos/${repository?.owner.login}/${repository?.name}/contents/${file.filename}`);
+            const response = await octokit.request(`GET /repos/${repository.owner.login}/${repository.name}/contents/${file.filename}`);
             const content = Buffer.from(response.data.content, "base64").toString("utf8");
             oldFm = fm(content).attributes as any;
         }
 
         if (file.status === "added" || file.status === "modified") {
-            const response = await octokit.request(`GET /repos/${pull_request?.base.repo.owner.login}/${pull_request?.base.repo.name}/contents/${file.filename}?ref=${pull_request?.head.sha}`);
+            const response = await octokit.request(`GET /repos/${pull_request.base.repo.owner.login}/${pull_request.base.repo.name}/contents/${file.filename}?ref=${pull_request.head.sha}`);
             const content = Buffer.from(response.data.content, "base64").toString("utf8");
             newFm = fm(content).attributes as any;
         }
@@ -99,16 +99,16 @@ async function run() {
     let issueLabels: string[] = [];
     if (labels.size > 0) {
         issueLabels = (await octokit.rest.issues.addLabels({
-            owner: repository?.owner.login as string,
-            repo: repository?.name as string,
-            issue_number: pull_request?.number as number,
+            owner: repository.owner.login,
+            repo: repository.name,
+            issue_number: pull_request.number,
             labels: [...labels]
         })).data.map((label) => label.name);
     } else {
         issueLabels = (await octokit.rest.issues.listLabelsOnIssue({
-            owner: repository?.owner.login as string,
-            repo: repository?.name as string,
-            issue_number: pull_request?.number as number
+            owner: repository.owner.login,
+            repo: repository.name,
+            issue_number: pull_request.number
         })).data.map((label) => label.name);
     }
 
@@ -118,9 +118,9 @@ async function run() {
             core.info(`Label ${label} should not be applied`);
             try {
                 await octokit.rest.issues.removeLabel({
-                    owner: repository?.owner.login as string,
-                    repo: repository?.name as string,
-                    issue_number: pull_request?.number as number,
+                    owner: repository.owner.login,
+                    repo: repository.name,
+                    issue_number: pull_request.number,
                     name: label
                 });
                 core.info(`Removed label ${label}`);
