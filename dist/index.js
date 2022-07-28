@@ -21425,16 +21425,15 @@ async function getLabelsFromConfig(newFm, oldFm, config) {
     return [...result];
 }
 async function run() {
-    var _a, _b, _c, _d, _e;
     // Initialize GitHub API
     const GITHUB_TOKEN = _actions_core__WEBPACK_IMPORTED_MODULE_0__.getInput('token');
     const octokit = _actions_github__WEBPACK_IMPORTED_MODULE_1__.getOctokit(GITHUB_TOKEN);
     // Deconstruct the payload
     const { context } = _actions_github__WEBPACK_IMPORTED_MODULE_1__;
     const { payload } = context;
-    const { repo, pull_request } = payload;
+    const { repository, pull_request } = payload;
     // Parse config file
-    const response = await octokit.request(`GET /repos/${repo.owner.login}/${repo.name}/contents/.jekyll-labels.yml`);
+    const response = await octokit.request(`GET /repos/${repository === null || repository === void 0 ? void 0 : repository.owner.login}/${repository === null || repository === void 0 ? void 0 : repository.name}/contents/.jekyll-labels.yml`);
     if (response.status !== 200) {
         _actions_core__WEBPACK_IMPORTED_MODULE_0__.setFailed('Could not find .jekyll-labels.yml');
         process.exit(1);
@@ -21444,13 +21443,12 @@ async function run() {
     const labels = new Set();
     // Iterate through changed files
     const fetched = await octokit.paginate(octokit.rest.pulls.listFiles, {
-        owner: (_c = (_b = (_a = pull_request === null || pull_request === void 0 ? void 0 : pull_request.base) === null || _a === void 0 ? void 0 : _a.repo) === null || _b === void 0 ? void 0 : _b.owner) === null || _c === void 0 ? void 0 : _c.login,
-        repo: (_e = (_d = pull_request === null || pull_request === void 0 ? void 0 : pull_request.base) === null || _d === void 0 ? void 0 : _d.repo) === null || _e === void 0 ? void 0 : _e.name,
+        owner: pull_request === null || pull_request === void 0 ? void 0 : pull_request.base.repo.owner.login,
+        repo: pull_request === null || pull_request === void 0 ? void 0 : pull_request.base.repo.name,
         pull_number: pull_request === null || pull_request === void 0 ? void 0 : pull_request.number,
     });
     // Be awed by the speed of doing everything in parallel
     await Promise.all(fetched.map(async function (file) {
-        var _a, _b, _c, _d, _e;
         if (!file.filename.endsWith(".md")) {
             return; // Jekyll only renders markdown files
         }
@@ -21460,12 +21458,12 @@ async function run() {
         let newFm = {};
         let oldFm = {};
         if (file.status === "removed" || file.status === "modified") {
-            const response = await octokit.request(`GET /repos/${repo.owner.login}/${repo.name}/contents/${file.filename}`);
+            const response = await octokit.request(`GET /repos/${repository === null || repository === void 0 ? void 0 : repository.owner.login}/${repository === null || repository === void 0 ? void 0 : repository.name}/contents/${file.filename}`);
             const content = Buffer.from(response.data.content, "base64").toString("utf8");
             oldFm = front_matter__WEBPACK_IMPORTED_MODULE_2__(content).attributes;
         }
         if (file.status === "added" || file.status === "modified") {
-            const response = await octokit.request(`GET /repos/${(_c = (_b = (_a = pull_request === null || pull_request === void 0 ? void 0 : pull_request.base) === null || _a === void 0 ? void 0 : _a.repo) === null || _b === void 0 ? void 0 : _b.owner) === null || _c === void 0 ? void 0 : _c.login}/${(_e = (_d = pull_request === null || pull_request === void 0 ? void 0 : pull_request.base) === null || _d === void 0 ? void 0 : _d.repo) === null || _e === void 0 ? void 0 : _e.name}/contents/${file.filename}`);
+            const response = await octokit.request(`GET /repos/${pull_request === null || pull_request === void 0 ? void 0 : pull_request.base.repo.owner.login}/${pull_request === null || pull_request === void 0 ? void 0 : pull_request.base.repo.name}/contents/${file.filename}`);
             const content = Buffer.from(response.data.content, "base64").toString("utf8");
             newFm = front_matter__WEBPACK_IMPORTED_MODULE_2__(content).attributes;
         }
@@ -21477,8 +21475,8 @@ async function run() {
     }));
     // Add labels
     octokit.rest.issues.addLabels({
-        owner: repo.owner,
-        repo: repo.repo,
+        owner: repository === null || repository === void 0 ? void 0 : repository.owner.login,
+        repo: repository === null || repository === void 0 ? void 0 : repository.name,
         issue_number: pull_request === null || pull_request === void 0 ? void 0 : pull_request.number,
         labels: [...labels]
     });
@@ -21488,8 +21486,8 @@ async function run() {
             continue;
         }
         octokit.rest.issues.removeLabel({
-            owner: repo.owner,
-            repo: repo.repo,
+            owner: repository === null || repository === void 0 ? void 0 : repository.owner.login,
+            repo: repository === null || repository === void 0 ? void 0 : repository.name,
             issue_number: pull_request === null || pull_request === void 0 ? void 0 : pull_request.number,
             name: label
         });
