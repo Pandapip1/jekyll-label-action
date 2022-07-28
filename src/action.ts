@@ -22,8 +22,6 @@ async function getLabelsFromConfig(newFm: any, oldFm: any, config: { [key: strin
 }
 
 async function run() {
-    console.log(core);
-
     // Initialize GitHub API
     const GITHUB_TOKEN = core.getInput('token');
     const octokit = github.getOctokit(GITHUB_TOKEN);
@@ -31,7 +29,7 @@ async function run() {
     // Deconstruct the payload
     const { context } = github;
     const { payload } = context;
-    const { repo, pull } = payload;
+    const { repo, pull_request } = payload;
 
     // Parse config file
     const response = await octokit.request(`GET /repos/${repo.owner.login}/${repo.name}/contents/.jekyll-labels.yml`);
@@ -46,9 +44,9 @@ async function run() {
 
     // Iterate through changed files
     const fetched = await octokit.paginate(octokit.rest.pulls.listFiles, {
-        owner: pull.base.repo.owner.login,
-        repo: pull.base.repo.name,
-        pull_number: pull.number,
+        owner: pull_request?.base?.repo?.owner?.login,
+        repo: pull_request?.base?.repo?.name,
+        pull_number: pull_request?.number as number,
     });
 
     // Be awed by the speed of doing everything in parallel
@@ -71,7 +69,7 @@ async function run() {
         }
 
         if (file.status === "added" || file.status === "modified") {
-            const response = await octokit.request(`GET /repos/${pull.base.repo.owner.login}/${pull.base.repo.name}/contents/${file.filename}`);
+            const response = await octokit.request(`GET /repos/${pull_request?.base?.repo?.owner?.login}/${pull_request?.base?.repo?.name}/contents/${file.filename}`);
             const content = Buffer.from(response.data.content, "base64").toString("utf8");
             newFm = fm(content).attributes as any;
         }
@@ -87,7 +85,7 @@ async function run() {
     octokit.rest.issues.addLabels({
         owner: repo.owner,
         repo: repo.repo,
-        issue_number: pull?.number as number,
+        issue_number: pull_request?.number as number,
         labels: [...labels]
     });
 
@@ -99,7 +97,7 @@ async function run() {
         octokit.rest.issues.removeLabel({
             owner: repo.owner,
             repo: repo.repo,
-            issue_number: pull?.number as number,
+            issue_number: pull_request?.number as number,
             name: label
         });
     }
