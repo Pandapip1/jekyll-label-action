@@ -82,28 +82,24 @@ async function run() {
     }));
 
     // Add labels
-    octokit.rest.issues.addLabels({
+    const issueLabels = (await octokit.rest.issues.addLabels({
         owner: repository?.owner.login as string,
         repo: repository?.name as string,
         issue_number: pull_request?.number as number,
         labels: [...labels]
-    });
+    })).data.map((label) => label.name);
 
     // Remove outdated labels
     for (let label of Object.keys(config)) {
-        if (labels.has(label)) {
+        if (labels.has(label) || issueLabels.indexOf(label) < 0) {
             continue;
         }
-        try {
-            octokit.rest.issues.removeLabel({
-                owner: repository?.owner.login as string,
-                repo: repository?.name as string,
-                issue_number: pull_request?.number as number,
-                name: label
-            });
-        } catch {
-            // The label was not present
-        }
+        octokit.rest.issues.removeLabel({
+            owner: repository?.owner.login as string,
+            repo: repository?.name as string,
+            issue_number: pull_request?.number as number,
+            name: label
+        }).catch(() => core.warning(`Could not remove label ${label}`));
     }
 }
 
