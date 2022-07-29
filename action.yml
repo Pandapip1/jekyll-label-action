@@ -1,5 +1,5 @@
 name: Jekyll Label Action
-description: TODO
+description: Automatically add labels depending on Jekyll front matter attributes
 author: Pandapip1
 
 inputs:
