@@ -1,7 +1,7 @@
 {
   "name": "jekyll-label-action",
   "version": "1.0.0",
-  "description": "",
+  "description": "Automatically add labels depending on Jekyll front matter attributes",
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
