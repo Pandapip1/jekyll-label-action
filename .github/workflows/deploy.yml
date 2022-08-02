@@ -28,4 +28,4 @@ jobs:
         with:
           default_author: github_actions
           message: Update
-          push: true
+          push: origin dist --set-upstream --force
