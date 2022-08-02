@@ -30,6 +30,6 @@ jobs:
         uses: actions-js/push@a52398fac807b0c1e5f1492c969b477c8560a0ba
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          message: Update dist/index.js (${{ github.event.head_commit.message }})
+          message: Update dist/index.js; ${{ github.event.head_commit.message }}
           branch: dist
           force: true
