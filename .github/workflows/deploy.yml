@@ -22,10 +22,13 @@ jobs:
 
       - name: Build
         run: npm run build
+      
+      - name: Add Built File
+        run: git add dist/index.js
 
       - name: Push
         uses: EndBug/add-and-commit@22a51482393942b57dc262947d3b289c1c209825 # v9.0.1
         with:
           default_author: github_actions
-          message: Update
+          message: Rebuld Index.js
           push: origin dist --set-upstream --force
