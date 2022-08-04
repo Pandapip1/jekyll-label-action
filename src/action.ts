@@ -1,25 +1,25 @@
 import core from '@actions/core';
 import github from '@actions/github';
-import { GitHub, getOctokitOptions } from "@actions/github/lib/utils.js";
-import { throttling } from "@octokit/plugin-throttling";
-import fm from "front-matter";
+import { GitHub, getOctokitOptions } from '@actions/github/lib/utils.js';
+import { throttling } from '@octokit/plugin-throttling';
+import fm from 'front-matter';
 import { parse } from 'yaml';
-import { PullRequestEvent } from "@octokit/webhooks-types";
+import { PullRequestEvent } from '@octokit/webhooks-types';
 
-const unknown = "<unknown>";
+const unknown = '<unknown>';
 const ThrottledOctokit = GitHub.plugin(throttling);
 
-function isConditionMet(templateString : string, templateVars : any) : boolean {
+function isConditionMet(templateString : string, templateVars : any) : boolean { // eslint-disable-line @typescript-eslint/no-explicit-any
     return new Function(`return ${templateString};`).call(templateVars); // Magic
 }
 
-async function getLabelsFromConfig(newFm: any, oldFm: any, config: { [key: string]: string; }) : Promise<string[]> {
-    let result = new Set<string>();
-    let context = {
-        "new": newFm,
-        "old": oldFm
-    }
-    for (let label in config) {
+async function getLabelsFromConfig(newFm: any, oldFm: any, config: { [key: string]: string; }) : Promise<string[]> { // eslint-disable-line @typescript-eslint/no-explicit-any
+    const result = new Set<string>();
+    const context = {
+        'new': newFm,
+        'old': oldFm
+    };
+    for (const label in config) {
         if (isConditionMet(config[label], context)) {
             result.add(label);
         }
@@ -31,14 +31,14 @@ async function run() {
     // Initialize GitHub API
     const GITHUB_TOKEN = core.getInput('token');
     const octokit = new ThrottledOctokit(getOctokitOptions(GITHUB_TOKEN, { throttle: {
-        onRateLimit: (retryAfter: number, options: any) => {
+        onRateLimit: (retryAfter: number, options: { method: string; url: string; request: { retryCount: number; }; }) => {
             octokit.log.warn(`Request quota exhausted for request ${options?.method || unknown} ${options?.url || unknown}`);
             if (options?.request?.retryCount <= 2) {
                 console.log(`Retrying after ${retryAfter} seconds!`);
                 return true;
             }
         },
-        onSecondaryRateLimit: (_retryAfter: number, options: any) => octokit.log.warn(`Abuse detected for request ${options?.method || unknown} ${options?.url || unknown}`),
+        onSecondaryRateLimit: (_retryAfter: number, options: { method: string; url: string; }) => octokit.log.warn(`Abuse detected for request ${options?.method || unknown} ${options?.url || unknown}`),
     } }));
 
     // Deconstruct the payload
@@ -51,7 +51,7 @@ async function run() {
         core.setFailed('Could not find .jekyll-labels.yml');
         process.exit(1);
     }
-    const config = parse(Buffer.from(response.data.content, "base64").toString("utf8")) as { [key: string]: string; };
+    const config = parse(Buffer.from(response.data.content, 'base64').toString('utf8')) as { [key: string]: string; };
 
     // Initialize labels
     const labels = new Set<string>();
@@ -65,32 +65,32 @@ async function run() {
 
     // Be awed by the speed of doing everything in parallel
     await Promise.all(fetched.map(async function(file) {
-        if (!file.filename.endsWith(".md")) {
+        if (!file.filename.endsWith('.md')) {
             return; // Jekyll only renders markdown files
         }
 
-        if (file.status !== "modified" && file.status !== "added" && file.status !== "removed") {
+        if (file.status !== 'modified' && file.status !== 'added' && file.status !== 'removed') {
             return; // File unmodified
         }
         
-        let newFm = undefined as any;
-        let oldFm = undefined as any;
+        let newFm = undefined as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+        let oldFm = undefined as any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-        if (file.status === "removed" || file.status === "modified") {
+        if (file.status === 'removed' || file.status === 'modified') {
             const response = await octokit.request(`GET /repos/${repository.owner.login}/${repository.name}/contents/${file.filename}`);
-            const content = Buffer.from(response.data.content, "base64").toString("utf8");
-            oldFm = fm(content).attributes as any;
+            const content = Buffer.from(response.data.content, 'base64').toString('utf8');
+            oldFm = fm(content).attributes as any; // eslint-disable-line @typescript-eslint/no-explicit-any
         }
 
-        if (file.status === "added" || file.status === "modified") {
+        if (file.status === 'added' || file.status === 'modified') {
             const response = await octokit.request(`GET /repos/${pull_request.base.repo.owner.login}/${pull_request.base.repo.name}/contents/${file.filename}?ref=${pull_request.head.sha}`);
-            const content = Buffer.from(response.data.content, "base64").toString("utf8");
-            newFm = fm(content).attributes as any;
+            const content = Buffer.from(response.data.content, 'base64').toString('utf8');
+            newFm = fm(content).attributes as any; // eslint-disable-line @typescript-eslint/no-explicit-any
         }
 
         // Get and add labels
-        let labels2add = await getLabelsFromConfig(newFm, oldFm, config);
-        for (let label of labels2add) {
+        const labels2add = await getLabelsFromConfig(newFm, oldFm, config);
+        for (const label of labels2add) {
             labels.add(label);
         }
     }));
@@ -141,7 +141,7 @@ async function run() {
                 core.warning(`Could not remove label ${label}`);
             }
         } else {
-            core.info(`Added label ${label}`)
+            core.info(`Added label ${label}`);
         }
     }));
 }
