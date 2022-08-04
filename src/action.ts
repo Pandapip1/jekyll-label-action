@@ -9,11 +9,11 @@ import { PullRequestEvent } from '@octokit/webhooks-types';
 const unknown = '<unknown>';
 const ThrottledOctokit = GitHub.plugin(throttling);
 
-function isConditionMet(templateString : string, templateVars : any) : boolean {
+function isConditionMet(templateString : string, templateVars : any) : boolean { // eslint-disable-line @typescript-eslint/no-explicit-any
     return new Function(`return ${templateString};`).call(templateVars); // Magic
 }
 
-async function getLabelsFromConfig(newFm: any, oldFm: any, config: { [key: string]: string; }) : Promise<string[]> {
+async function getLabelsFromConfig(newFm: any, oldFm: any, config: { [key: string]: string; }) : Promise<string[]> { // eslint-disable-line @typescript-eslint/no-explicit-any
     const result = new Set<string>();
     const context = {
         'new': newFm,
@@ -73,19 +73,19 @@ async function run() {
             return; // File unmodified
         }
         
-        let newFm = undefined as any;
-        let oldFm = undefined as any;
+        let newFm = undefined as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+        let oldFm = undefined as any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
         if (file.status === 'removed' || file.status === 'modified') {
             const response = await octokit.request(`GET /repos/${repository.owner.login}/${repository.name}/contents/${file.filename}`);
             const content = Buffer.from(response.data.content, 'base64').toString('utf8');
-            oldFm = fm(content).attributes as any;
+            oldFm = fm(content).attributes as any; // eslint-disable-line @typescript-eslint/no-explicit-any
         }
 
         if (file.status === 'added' || file.status === 'modified') {
             const response = await octokit.request(`GET /repos/${pull_request.base.repo.owner.login}/${pull_request.base.repo.name}/contents/${file.filename}?ref=${pull_request.head.sha}`);
             const content = Buffer.from(response.data.content, 'base64').toString('utf8');
-            newFm = fm(content).attributes as any;
+            newFm = fm(content).attributes as any; // eslint-disable-line @typescript-eslint/no-explicit-any
         }
 
         // Get and add labels
