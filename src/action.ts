@@ -98,6 +98,19 @@ async function run() {
     // Add new labels and remove labels that are no longer relevant
     let issueLabels: string[] = [];
     if (labels.size > 0) {
+        const existingLabels = await octokit.paginate(octokit.rest.issues.listLabelsForRepo, {
+            owner: repository.owner.login,
+            repo: repository.name,
+        });
+        for (const label of [...labels]) {
+            if (!existingLabels.find(l => l.name === label)) {
+                await octokit.rest.issues.createLabel({
+                    owner: repository.owner.login,
+                    repo: repository.name,
+                    name: label
+                });
+            }
+        }
         issueLabels = (await octokit.rest.issues.addLabels({
             owner: repository.owner.login,
             repo: repository.name,
