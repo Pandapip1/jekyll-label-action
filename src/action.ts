@@ -46,7 +46,8 @@ async function run() {
     const { repository, pull_request } = payload;
 
     // Parse config file
-    const response = await octokit.request(`GET /repos/${repository.owner.login}/${repository.name}/contents/.jekyll-labels.yml`);
+    // Note: this always fetches from the parent repository, so there is no XSS risk
+    const response = await octokit.request(`GET /repos/${repository.owner.login}/${repository.name}/contents/${core.getInput('config')}`);
     if (response.status !== 200) {
         core.setFailed('Could not find .jekyll-labels.yml');
         process.exit(1);

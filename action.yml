@@ -6,6 +6,10 @@ inputs:
   token:
     description: GitHub token with repo permissions
     required: true
+  config:
+    description: Configuration file path
+    default: .jekyll-labels.yml
+    required: false
 
 runs:
   using: node16
