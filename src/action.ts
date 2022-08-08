@@ -47,9 +47,10 @@ async function run() {
 
     // Parse config file
     // Note: this always fetches from the parent repository, so there is no XSS risk
-    const response = await octokit.request(`GET /repos/${repository.owner.login}/${repository.name}/contents/${core.getInput('config')}`);
+    const configFile = core.getInput('config-path') || '.jekyll-labels.yml';
+    const response = await octokit.request(`GET /repos/${repository.owner.login}/${repository.name}/contents/${configFile}`);
     if (response.status !== 200) {
-        core.setFailed('Could not find .jekyll-labels.yml');
+        core.setFailed(`Could not find config file at ${configFile}`);
         process.exit(1);
     }
     const config = parse(Buffer.from(response.data.content, 'base64').toString('utf8')) as { [key: string]: string; };
