@@ -6,7 +6,7 @@ inputs:
   token:
     description: GitHub token with repo permissions
     required: true
-  config:
+  config-path:
     description: Configuration file path
     default: .jekyll-labels.yml
     required: false
