@@ -25,7 +25,7 @@ jobs:
 
 ## Configuration
 
-This action uses a configuration file. The format is simple:
+This action uses a configuration file (default: `.jekyll-labels.yml`). The format is simple:
 
 ```yml
 label-to-apply: this?.new?.property == 'value'
