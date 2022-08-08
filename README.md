@@ -20,7 +20,7 @@ jobs:
       - uses: Pandapip1/jekyll-label-action@bfc2f4c2e738017a20b4822c229f02d1db79c59b
         with:
           token: ${{ secrets.GITHUB_TOKEN }}  # Valid GitHub token
-          config: .jekyll-labels.yml          # Path to config file
+          config-path: .jekyll-labels.yml          # Path to config file
 ```
 
 ## Configuration
