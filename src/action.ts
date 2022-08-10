@@ -129,7 +129,7 @@ async function run() {
 
     await Promise.all(issueLabels.map(async (label) => {
         core.info(`Found label: ${label}`);
-        if (!labels.has(label)) {
+        if (!labels.has(label) && label in config) {
             core.info(`Label ${label} should not be applied`);
             try {
                 await octokit.rest.issues.removeLabel({
