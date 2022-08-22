@@ -21,8 +21,8 @@
   "devDependencies": {
     "@actions/core": "1.9.1",
     "@actions/github": "5.0.3",
-    "@typescript-eslint/eslint-plugin": "5.33.1",
-    "@typescript-eslint/parser": "5.33.1",
+    "@typescript-eslint/eslint-plugin": "5.34.0",
+    "@typescript-eslint/parser": "5.34.0",
     "esbuild": "0.15.5",
     "eslint": "8.22.0"
   },
