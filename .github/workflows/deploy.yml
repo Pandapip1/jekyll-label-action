@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 0
       
       - name: Setup
-        uses: actions/setup-node@b4b18e5317cee56876918c4f099a680d3bca1cb8 # v3.4.1
+        uses: actions/setup-node@30f0e7dc5aa0e546410a28dc80a10d8114ee873e # v3.4.1
         with:
           node-version: 16
       
