@@ -29,7 +29,7 @@
   "dependencies": {
     "@octokit/plugin-throttling": "^4.3.0",
     "@octokit/webhooks-types": "^6.3.6",
-    "@types/node": "^18.7.16",
+    "@types/node": "^18.7.17",
     "front-matter": "^4.0.2",
     "typescript": "^4.8.3",
     "yaml": "^2.1.1"
