@@ -10901,7 +10901,7 @@ var require_loader = __commonJS({
               return true;
             }
           } else if (detected) {
-            throwError(state, "can not read a block mapping entry; a multiline key may not be an implicit key");
+            throwError(state, "The preamble is invalid. Please double-check the YAML syntax.");
           } else {
             state.tag = _tag;
             state.anchor = _anchor;
