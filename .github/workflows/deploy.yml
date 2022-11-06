@@ -10,7 +10,7 @@ jobs:
     
     steps:
       - name: Checkout
-        uses: actions/checkout@1f9a0c22da41e6ebfa534300ef656657ea2c6707 # v3.0.2
+        uses: actions/checkout@2541b1294d2704b0964813337f33b291d3f8596b # v3.0.2
         with:
           persist-credentials: false
           fetch-depth: 0
