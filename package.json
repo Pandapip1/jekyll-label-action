@@ -24,7 +24,7 @@
     "@typescript-eslint/eslint-plugin": "5.42.0",
     "@typescript-eslint/parser": "5.42.0",
     "esbuild": "0.15.13",
-    "eslint": "8.26.0"
+    "eslint": "8.27.0"
   },
   "dependencies": {
     "@octokit/plugin-throttling": "^4.3.2",
