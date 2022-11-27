@@ -23,7 +23,7 @@
     "@actions/github": "5.1.1",
     "@typescript-eslint/eslint-plugin": "5.44.0",
     "@typescript-eslint/parser": "5.43.0",
-    "esbuild": "0.15.15",
+    "esbuild": "0.15.16",
     "eslint": "8.28.0"
   },
   "dependencies": {
