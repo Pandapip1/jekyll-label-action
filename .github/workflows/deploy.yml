@@ -10,13 +10,13 @@ jobs:
     
     steps:
       - name: Checkout
-        uses: actions/checkout@1f9a0c22da41e6ebfa534300ef656657ea2c6707 # v3.0.2
+        uses: actions/checkout@93ea575cb5d8a053eaa0ac8fa3b40d7e05a33cc8 # v3.1.0
         with:
           persist-credentials: false
           fetch-depth: 0
       
       - name: Setup
-        uses: actions/setup-node@788c6ccbd0d6bddb637da16397c675d9e1c6f93c # v3.4.1
+        uses: actions/setup-node@8c91899e586c5b171469028077307d293428b516 # v3.5.1
         with:
           node-version: 16
       
