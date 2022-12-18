@@ -27,7 +27,7 @@ jobs:
         run: npm run build
       
       - name: Commit & Push changes
-        uses: actions-js/push@9624971e5ca3184618b29686baf638e14f65bd14
+        uses: actions-js/push@156f2b10c3aa000c44dbe75ea7018f32ae999772
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           message: Update dist/index.js; ${{ github.event.head_commit.message }}
