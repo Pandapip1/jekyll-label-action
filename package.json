@@ -32,6 +32,6 @@
     "@types/node": "^18.11.2",
     "front-matter": "^4.0.2",
     "typescript": "^5.0.0",
-    "yaml": "^2.2.1"
+    "yaml": "^2.2.2"
   }
 }
