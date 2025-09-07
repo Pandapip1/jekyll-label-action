@@ -27,7 +27,7 @@
     "eslint": "8.57.0"
   },
   "dependencies": {
-    "@octokit/plugin-throttling": "^7.0.0",
+    "@octokit/plugin-throttling": "^11.0.0",
     "@octokit/webhooks-types": "^7.0.0",
     "@types/node": "^20.0.0",
     "front-matter": "^4.0.2",
